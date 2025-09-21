@@ -3,14 +3,14 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    height: 90vh;
+    margin-bottom: 100px;
 }
 
 .new-collections h1{
     color: #171717;
     font-size: 50px;
     font-weight: 600;
-    margin-top: 115px;
+    margin-top: 115px; /*i have not put if big*/
 }
 
 .new-collections hr{
@@ -25,6 +25,6 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin-top: 50px;
     gap: 30px;
-    max-width: 100%;
-    margin-left: 37px;
+    max-width: 100%; /*same with */
+    margin-left: 37px; /*same with */
 }
