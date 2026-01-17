@@ -13,8 +13,9 @@ const getDefaultCart = () => {
 
 const ShopContextProvider = (props) => {
     const [all_product, setAll_product] = useState([]);
-
     const [cartItems, setcartItems] = useState(getDefaultCart());
+
+    const authToken = localStorage.getItem('auth-token');
 
     useEffect(() => {
         fetch('https://e-commerce-bu8x.onrender.com/allproducts')
@@ -23,22 +24,21 @@ const ShopContextProvider = (props) => {
     }, []);
 
     useEffect(() => {
-        if (localStorage.getItem('auth-token')) {
+        if (authToken) {
             fetch('https://e-commerce-bu8x.onrender.com/getcart', {
                 method: 'POST',
                 headers: {
-                    'auth-token': localStorage.getItem('auth-token'),
+                    'auth-token': authToken,
                     'Content-Type': 'application/json',
                 },
             })
                 .then(res => res.json())
-                .then(data => {
-                    setcartItems(data);
-                });
+                .then(data => setcartItems(data));
         } else {
-            setcartItems(getDefaultCart()); // logout case
+            setcartItems(getDefaultCart());
         }
-    }, [localStorage.getItem('auth-token')]);
+    }, [authToken]);
+
 
 
     const addToCart = (itemId) => {
