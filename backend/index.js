@@ -1,4 +1,4 @@
-const port = 4000;
+const port = process.env.PORT || 4000;
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -14,7 +14,11 @@ app.use(express.json());
 app.use(cors());
 
 //Database connection with mongoDB
-mongoose.connect("mongodb+srv://bhavyamittal_db_user:MBAS2307@cluster0.aq5pkoe.mongodb.net/shopping")
+require("dotenv").config();
+
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
 
 //API Creation
 
@@ -40,9 +44,10 @@ app.use('/images', express.static('upload/images'))
 app.post("/upload", upload.single('product'), (req, res) => {
     res.json({
         success: 1,
-        image_url: `http://localhost:${port}/images/${req.file.filename}`
+        image_url: `${process.env.BASE_URL}/images/${req.file.filename}`
     })
 })
+
 
 // Schema for creating product
 
