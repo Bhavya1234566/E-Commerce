@@ -6,9 +6,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
-const { type } = require("os");
-const { log } = require("console");
-
+const cloudinary = require("cloudinary").v2;
 
 app.use(express.json());
 app.use(cors());
@@ -20,37 +18,54 @@ mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
-//API Creation
+// Cloudinary Configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
+//API Creation
 app.get("/", (req, res) => {
     res.send("Express app is Running")
 })
 
-//Image Storage Engine
+//Image Storage Engine - Using Memory Storage for Cloudinary
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
-const storage = multer.diskStorage({
-    destination: './upload/images',
-    filename: (req, file, cb) => {
-        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+//Creating upload Endpoint for images - Upload to Cloudinary
+app.post("/upload", upload.single('product'), async (req, res) => {
+    try {
+        // Upload to Cloudinary
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'ecommerce_products',
+                    resource_type: 'auto'
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            uploadStream.end(req.file.buffer);
+        });
+
+        res.json({
+            success: 1,
+            image_url: result.secure_url
+        });
+    } catch (error) {
+        console.error("Upload Error:", error);
+        res.status(500).json({
+            success: 0,
+            message: "Image upload failed"
+        });
     }
-})
-
-const upload = multer({ storage: storage })
-
-//Creating upload Endpoint for images
-
-app.use('/images', express.static('upload/images'))
-
-app.post("/upload", upload.single('product'), (req, res) => {
-    res.json({
-        success: 1,
-        image_url: `${process.env.BASE_URL}/images/${req.file.filename}`
-    })
-})
-
+});
 
 // Schema for creating product
-
 const Product = mongoose.model("Product", {
     id: {
         type: Number,
@@ -115,7 +130,6 @@ app.post('/addproduct', async (req, res) => {
 })
 
 // Creating API for deleting products
-
 app.post('/removeproduct',async(req,res)=>{
     await Product.findOneAndDelete({id:req.body.id});
     console.log("Removed");
@@ -126,7 +140,6 @@ app.post('/removeproduct',async(req,res)=>{
 })
 
 //Creating API for getting all products
-
 app.get('/allproducts', async(req,res) => {
     let products = await Product.find({});
     console.log("All Products Fetched");
@@ -264,6 +277,7 @@ app.post('/getcart',fetchUser,async(req,res)=>{
     let userData = await Users.findOne({_id:req.user.id});
     res.json(userData.cartData);
 })
+
 app.listen(port, (error) => {
     if (!error) {
         console.log("server running on port " + port)
