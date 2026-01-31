@@ -8,7 +8,8 @@ const Sidebar = () => {
     <div className='sidebar'>
       <Link to = {'/addproduct'} style={{textDecoration:"none"}}>
         <div className='sidebar-item'>
-            <img src={add_product_icon} alt="" />
+           
+<span style={{fontSize: '24px', marginRight: '10px'}}>➕</span>
             <p>Add Product</p>
         </div>
       </Link>
