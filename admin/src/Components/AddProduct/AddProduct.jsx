@@ -21,6 +21,16 @@ const AddProduct = () => {
   }
 
   const Add_Product = async () => {
+    if (!image) {
+      alert("Please select an image first!");
+      return;
+    }
+
+    if (!productDetails.name || !productDetails.old_price || !productDetails.new_price) {
+      alert("Please fill all fields!");
+      return;
+    }
+
     console.log(productDetails);
     let responseData;
     let product = productDetails;
@@ -29,33 +39,52 @@ const AddProduct = () => {
     formData.append('product', image);
 
     try {
-      await fetch('https://e-commerce-0112.onrender.com/upload', {
+      const uploadResponse = await fetch('https://e-commerce-0112.onrender.com/upload', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
         },
         body: formData,
-      }).then((resp) => resp.json()).then((data) => { responseData = data });
+      });
+
+      responseData = await uploadResponse.json();
+      console.log("Upload response:", responseData);
 
       if (responseData.success) {
         product.image = responseData.image_url;
         console.log(product);
-        await fetch('https://e-commerce-0112.onrender.com/addproduct', {
+        
+        const addResponse = await fetch('https://e-commerce-0112.onrender.com/addproduct', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(product),
-        }).then((resp) => resp.json()).then((data) => {
-          data.success ? alert("Product Added") : alert("Failed")
-        })
+        });
+        
+        const addData = await addResponse.json();
+        
+        if (addData.success) {
+          alert("Product Added Successfully!");
+          // Reset form
+          setProductDetails({
+            name: "",
+            image: "",
+            category: "women",
+            new_price: "",
+            old_price: ""
+          });
+          setImage(false);
+        } else {
+          alert("Failed to add product");
+        }
       } else {
-        alert("Failed to upload image");
+        alert(`Upload failed: ${responseData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error adding product:", error);
-      alert("Error adding product");
+      alert(`Error: ${error.message}. The server might be sleeping or down.`);
     }
   }
 
@@ -63,21 +92,44 @@ const AddProduct = () => {
     <div className='add-product'>
       <div className="addproduct-itemfield">
         <p>Product title</p>
-        <input value={productDetails.name} onChange={changeHandler} type="text" name='name' placeholder='Type here' />
+        <input 
+          value={productDetails.name} 
+          onChange={changeHandler} 
+          type="text" 
+          name='name' 
+          placeholder='Type here' 
+        />
       </div>
       <div className="addproduct-price">
         <div className="addproduct-itemfield">
           <p>Price</p>
-          <input value={productDetails.old_price} onChange={changeHandler} type="text" name='old_price' placeholder='Type here' />
+          <input 
+            value={productDetails.old_price} 
+            onChange={changeHandler} 
+            type="text" 
+            name='old_price' 
+            placeholder='Type here' 
+          />
         </div>
         <div className="addproduct-itemfield">
           <p>Offer Price</p>
-          <input value={productDetails.new_price} onChange={changeHandler} type="text" name='new_price' placeholder='Type here' />
+          <input 
+            value={productDetails.new_price} 
+            onChange={changeHandler} 
+            type="text" 
+            name='new_price' 
+            placeholder='Type here' 
+          />
         </div>
       </div>
       <div className="addproduct-itemfield">
         <p>Product Category</p>
-        <select value={productDetails.category} onChange={changeHandler} name="category" className='add-product-selector'>
+        <select 
+          value={productDetails.category} 
+          onChange={changeHandler} 
+          name="category" 
+          className='add-product-selector'
+        >
           <option value="women">Women</option>
           <option value="men">Men</option>
           <option value="kid">Kid</option>
@@ -86,7 +138,11 @@ const AddProduct = () => {
       <div className="addproduct-itemfield">
         <label htmlFor="file-input">
           {image ? (
-            <img src={URL.createObjectURL(image)} className='addproduct-thumnail-img' alt="Product preview" />
+            <img 
+              src={URL.createObjectURL(image)} 
+              className='addproduct-thumnail-img' 
+              alt="Product preview" 
+            />
           ) : (
             <div className='addproduct-upload-placeholder'>
               <span style={{ fontSize: '48px' }}>📁</span>
@@ -94,9 +150,21 @@ const AddProduct = () => {
             </div>
           )}
         </label>
-        <input onChange={imageHandler} type="file" name='image' id='file-input' accept="image/*" hidden />
+        <input 
+          onChange={imageHandler} 
+          type="file" 
+          name='image' 
+          id='file-input' 
+          accept="image/*" 
+          hidden 
+        />
       </div>
-      <button onClick={() => { Add_Product() }} className='addproduct-btn'>ADD</button>
+      <button 
+        onClick={() => { Add_Product() }} 
+        className='addproduct-btn'
+      >
+        ADD
+      </button>
     </div>
   )
 }

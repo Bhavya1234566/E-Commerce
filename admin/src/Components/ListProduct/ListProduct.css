@@ -1,52 +1,194 @@
-.list-product{
+.list-product {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 740px;
-    padding: 10px 50px;
-    margin: 30px;
+    max-width: 1200px;
+    min-height: 740px;
+    padding: 30px 50px;
+    margin: 30px auto;
     border-radius: 6px;
     background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
-.listproduct-format-main{
+
+.list-product h1 {
+    margin-bottom: 20px;
+    color: #171717;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.listproduct-format-main {
     display: grid;
     grid-template-columns: 1fr 3fr 1fr 1fr 1fr 1fr;
     gap: 10px;
     width: 100%;
-    padding: 20px 0px;
+    padding: 20px 15px;
     color: #454545;
     font-size: 15px;
     font-weight: 600;
+    background: #f5f5f5;
+    border-radius: 4px;
 }
-.listproduct-format{
-    align-items: center;
-    font-weight: 500;
+
+.listproduct-format-main p {
+    text-align: center;
+    margin: 0;
 }
-.listproduct-product-icon{
-    height: 80px;
-}
-.listproduct-remove-icon{
-    cursor: pointer;
-    margin: auto;
-}
-.listproduct-allproducts{
+
+.listproduct-allproducts {
+    width: 100%;
     overflow-y: auto;
+    max-height: 600px;
 }
-@media(max-width:800px){
-    .list-product{
+
+.listproduct-allproducts::-webkit-scrollbar {
+    width: 8px;
+}
+
+.listproduct-allproducts::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.listproduct-allproducts::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.listproduct-allproducts::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+.listproduct-format {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 20px 15px;
+    align-items: center;
+    color: #454545;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.listproduct-format:hover {
+    background-color: #f9f9f9;
+}
+
+.listproduct-format p {
+    text-align: center;
+    margin: 0;
+}
+
+.listproduct-product-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin: 0 auto;
+    display: block;
+    border: 1px solid #e3e3e3;
+}
+
+.listproduct-remove-icon {
+    display: block;
+    text-align: center;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.listproduct-remove-icon:hover {
+    transform: scale(1.2);
+}
+
+.listproduct-allproducts hr {
+    border: none;
+    height: 1px;
+    background: #e5e5e5;
+    margin: 0;
+}
+
+.loading-message,
+.no-products-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .listproduct-format-main,
+    .listproduct-format {
+        grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr 0.5fr;
+        font-size: 13px;
+    }
+    
+    .listproduct-product-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .list-product h1 {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 800px) {
+    .list-product {
         box-sizing: border-box;
         width: 95%;
-        height: 100%;
-        padding: 10px 30px;
+        min-height: auto;
+        padding: 20px 30px;
         margin: 20px auto;
     }
-    .listproduct-format-main{
-        padding: 15px 0px;
-        color: #454545;
+
+    .list-product h1 {
+        font-size: 22px;
+    }
+
+    .listproduct-format-main {
+        padding: 15px 10px;
         font-size: 12px;
     }
-    .listproduct-product-icon{
-        height: 60px;
+
+    .listproduct-format {
+        padding: 15px 10px;
+        font-size: 12px;
+    }
+
+    .listproduct-product-icon {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+@media (max-width: 600px) {
+    .list-product {
+        padding: 15px;
+    }
+
+    .listproduct-format-main,
+    .listproduct-format {
+        grid-template-columns: 0.5fr 2fr 1fr 1fr 0.5fr;
+        font-size: 11px;
+        gap: 5px;
+    }
+
+    /* Hide category column on very small screens */
+    .listproduct-format-main p:nth-child(5),
+    .listproduct-format p:nth-child(5) {
+        display: none;
+    }
+
+    .listproduct-product-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .listproduct-remove-icon {
+        font-size: 20px;
     }
 }
