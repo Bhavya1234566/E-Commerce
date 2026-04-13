@@ -16,6 +16,7 @@ export default defineConfig({
     }
   },
   server: {
+    host: true,   // ← sirf yeh line add hui
     port: 5173,
     open: true
   }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './AddProduct.css'
+import upload_area from '../../assets/upload_area.svg'
 
 const AddProduct = () => {
 
@@ -21,70 +22,39 @@ const AddProduct = () => {
   }
 
   const Add_Product = async () => {
-    if (!image) {
-      alert("Please select an image first!");
-      return;
-    }
+    if (!productDetails.name) { alert("⚠️ Please enter product name!"); return; }
+    if (!productDetails.old_price || !productDetails.new_price) { alert("⚠️ Please enter both prices!"); return; }
+    if (!image) { alert("⚠️ Please select an image!"); return; }
 
-    if (!productDetails.name || !productDetails.old_price || !productDetails.new_price) {
-      alert("Please fill all fields!");
-      return;
-    }
-
-    console.log(productDetails);
     let responseData;
     let product = productDetails;
-
     let formData = new FormData();
     formData.append('product', image);
 
     try {
-      const uploadResponse = await fetch('https://e-commerce-0112.onrender.com/upload', {
+      await fetch(`http://192.168.29.21:4000/upload`, {
         method: 'POST',
-        headers: {
-          Accept: 'application/json',
-        },
+        headers: { Accept: 'application/json' },
         body: formData,
-      });
-
-      responseData = await uploadResponse.json();
-      console.log("Upload response:", responseData);
+      }).then((resp) => resp.json()).then((data) => { responseData = data });
 
       if (responseData.success) {
         product.image = responseData.image_url;
-        console.log(product);
-        
-        const addResponse = await fetch('https://e-commerce-0112.onrender.com/addproduct', {
+        await fetch(`http://192.168.29.21:4000/addproduct`, {
           method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
           body: JSON.stringify(product),
-        });
-        
-        const addData = await addResponse.json();
-        
-        if (addData.success) {
-          alert("Product Added Successfully!");
-          // Reset form
-          setProductDetails({
-            name: "",
-            image: "",
-            category: "women",
-            new_price: "",
-            old_price: ""
-          });
-          setImage(false);
-        } else {
-          alert("Failed to add product");
-        }
-      } else {
-        alert(`Upload failed: ${responseData.message || 'Unknown error'}`);
-      }
+        }).then((resp) => resp.json()).then((data) => {
+          if (data.success) {
+            alert("✅ Product Added Successfully!");
+            setProductDetails({ name: "", image: "", category: "women", new_price: "", old_price: "" });
+            setImage(false);
+          } else { alert("❌ Failed to add product!"); }
+        })
+      } else { alert("❌ Failed to upload image!"); }
     } catch (error) {
-      console.error("Error adding product:", error);
-      alert(`Error: ${error.message}. The server might be sleeping or down.`);
+      console.error("Error:", error);
+      alert("❌ Error: " + error.message);
     }
   }
 
@@ -92,44 +62,21 @@ const AddProduct = () => {
     <div className='add-product'>
       <div className="addproduct-itemfield">
         <p>Product title</p>
-        <input 
-          value={productDetails.name} 
-          onChange={changeHandler} 
-          type="text" 
-          name='name' 
-          placeholder='Type here' 
-        />
+        <input value={productDetails.name} onChange={changeHandler} type="text" name='name' placeholder='Type here' />
       </div>
       <div className="addproduct-price">
         <div className="addproduct-itemfield">
           <p>Price</p>
-          <input 
-            value={productDetails.old_price} 
-            onChange={changeHandler} 
-            type="text" 
-            name='old_price' 
-            placeholder='Type here' 
-          />
+          <input value={productDetails.old_price} onChange={changeHandler} type="text" name='old_price' placeholder='Type here' />
         </div>
         <div className="addproduct-itemfield">
           <p>Offer Price</p>
-          <input 
-            value={productDetails.new_price} 
-            onChange={changeHandler} 
-            type="text" 
-            name='new_price' 
-            placeholder='Type here' 
-          />
+          <input value={productDetails.new_price} onChange={changeHandler} type="text" name='new_price' placeholder='Type here' />
         </div>
       </div>
       <div className="addproduct-itemfield">
         <p>Product Category</p>
-        <select 
-          value={productDetails.category} 
-          onChange={changeHandler} 
-          name="category" 
-          className='add-product-selector'
-        >
+        <select value={productDetails.category} onChange={changeHandler} name="category" className='add-product-selector'>
           <option value="women">Women</option>
           <option value="men">Men</option>
           <option value="kid">Kid</option>
@@ -137,34 +84,11 @@ const AddProduct = () => {
       </div>
       <div className="addproduct-itemfield">
         <label htmlFor="file-input">
-          {image ? (
-            <img 
-              src={URL.createObjectURL(image)} 
-              className='addproduct-thumnail-img' 
-              alt="Product preview" 
-            />
-          ) : (
-            <div className='addproduct-upload-placeholder'>
-              <span style={{ fontSize: '48px' }}>📁</span>
-              <p>Click to upload image</p>
-            </div>
-          )}
+          <img src={image ? URL.createObjectURL(image) : upload_area} className='addproduct-thumnail-img' alt="" />
         </label>
-        <input 
-          onChange={imageHandler} 
-          type="file" 
-          name='image' 
-          id='file-input' 
-          accept="image/*" 
-          hidden 
-        />
+        <input onChange={imageHandler} type="file" name='image' id='file-input' accept="image/*" hidden />
       </div>
-      <button 
-        onClick={() => { Add_Product() }} 
-        className='addproduct-btn'
-      >
-        ADD
-      </button>
+      <button onClick={() => { Add_Product() }} className='addproduct-btn'>ADD</button>
     </div>
   )
 }
